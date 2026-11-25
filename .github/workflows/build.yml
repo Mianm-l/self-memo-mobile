@@ -3,6 +3,8 @@ name: 构建 IPA
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**.md"
   workflow_dispatch:
 
 jobs:
