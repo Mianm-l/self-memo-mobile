@@ -1,0 +1,10 @@
+# XcodeGen 在 CI 上生成,不入库
+*.xcodeproj
+
+# 构建产物
+build/
+DerivedData/
+*.ipa
+
+# 系统文件
+.DS_Store

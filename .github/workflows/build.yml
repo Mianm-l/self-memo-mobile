@@ -1,0 +1,43 @@
+name: 构建 IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        run: xcodegen generate
+
+      - name: 编译(免签名)
+        run: |
+          xcodebuild \
+            -project MouseMemo.xcodeproj \
+            -scheme MouseMemo \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            ARCHS=arm64 \
+            -quiet
+
+      - name: 打包 IPA
+        run: |
+          mkdir -p build/Payload
+          cp -R "build/Build/Products/Release-iphoneos/MouseMemo.app" build/Payload/
+          cd build && zip -qry MouseMemo-unsigned.ipa Payload
+
+      - name: 上传 IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MouseMemo-unsigned-ipa
+          path: build/MouseMemo-unsigned.ipa
+          retention-days: 30
